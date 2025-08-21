@@ -332,12 +332,25 @@ async def main():
         print("🚀 Starting Telegram Affiliate Bot...")
         print("📋 Checking environment variables...")
         
-        # Validate environment variables before starting
+        # Debug: Check all environment variables
+        print("\n🔍 Environment Variables Debug:")
+        print("=" * 40)
+        all_env = dict(os.environ)
         required_vars = [
             "TELEGRAM_API_ID", "TELEGRAM_API_HASH", "TELEGRAM_BOT_TOKEN", 
             "TELEGRAM_PHONE_NUMBER", "DESTINATION_CHANNEL_ID"
         ]
         
+        for var in required_vars:
+            value = os.getenv(var)
+            if value:
+                print(f"✅ {var}: {value[:10]}..." if len(str(value)) > 10 else f"✅ {var}: {value}")
+            else:
+                print(f"❌ {var}: NOT SET")
+        
+        print("=" * 40)
+        
+        # Validate environment variables before starting
         missing_vars = [var for var in required_vars if not os.getenv(var)]
         if missing_vars:
             print(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
