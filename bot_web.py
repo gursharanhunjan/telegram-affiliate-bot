@@ -265,10 +265,13 @@ class TelegramAffiliateBot:
                         await self.client.start(phone=self.config['telegram']['phone_number'])
                         self.logger.info("Telegram client started successfully after wait")
                     else:
+                        self.logger.error(f"FloodWaitError but could not extract wait time: {e}")
                         raise e
                 else:
+                    self.logger.error(f"Error starting client: {e}")
                     raise e
             
+            # Register event handler for new messages
             @self.client.on(events.NewMessage(chats=self.config['channels']['source_channel_id']))
             async def new_message_handler(event):
                 await self.handle_new_message(event)
@@ -306,10 +309,7 @@ async def start_bot_and_server():
     # Initialize bot
     bot = TelegramAffiliateBot()
     
-    # Start bot monitoring in background
-    asyncio.create_task(bot.start_monitoring())
-    
-    # Create web app
+    # Create web app first
     app = web.Application()
     app.router.add_get('/', health_check)
     app.router.add_get('/status', status)
@@ -320,8 +320,18 @@ async def start_bot_and_server():
     site = web.TCPSite(runner, '0.0.0.0', int(os.getenv('PORT', 8080)))
     await site.start()
     
-    print("🚀 Bot and web server started successfully!")
+    print("🚀 Web server started successfully!")
     print(f"🌐 Health check available at: http://localhost:{os.getenv('PORT', 8080)}/")
+    
+    # Start bot monitoring in background with error handling
+    async def run_bot_with_retry():
+        try:
+            await bot.start_monitoring()
+        except Exception as e:
+            print(f"❌ Bot monitoring failed: {e}")
+            # Don't exit, keep web server running
+    
+    asyncio.create_task(run_bot_with_retry())
     
     # Keep running
     try:
