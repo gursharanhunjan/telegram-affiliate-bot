@@ -38,7 +38,11 @@ class TelegramAffiliateBot:
         self.client = TelegramClient(
             'bot_session',
             self.config['telegram']['api_id'],
-            self.config['telegram']['api_hash']
+            self.config['telegram']['api_hash'],
+            device_model='Railway Bot',
+            system_version='Linux',
+            app_version='1.0.0',
+            lang_code='en'
         )
         
         # Initialize python-telegram-bot for sending messages
