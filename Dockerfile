@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
+# Create directory for session files
+RUN mkdir -p /app/sessions
+
 # Copy requirements first for better caching
 COPY requirements.txt .
 
