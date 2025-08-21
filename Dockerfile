@@ -23,5 +23,8 @@ COPY . .
 RUN useradd -m -u 1000 botuser && chown -R botuser:botuser /app
 USER botuser
 
-# Run the bot
-CMD ["python", "bot.py"]
+# Expose port for web server
+EXPOSE 8080
+
+# Run the web server version of the bot
+CMD ["python", "bot_web.py"]
