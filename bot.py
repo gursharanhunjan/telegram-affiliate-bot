@@ -305,8 +305,10 @@ class TelegramAffiliateBot:
                         await self.client.start(phone=self.config['telegram']['phone_number'])
                         self.logger.info("Telegram client started successfully after wait")
                     else:
+                        self.logger.error(f"FloodWaitError but could not extract wait time: {e}")
                         raise e
                 else:
+                    self.logger.error(f"Error starting client: {e}")
                     raise e
             
             # Register event handler for new messages

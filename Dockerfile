@@ -30,4 +30,4 @@ USER botuser
 EXPOSE 8080
 
 # Run the web server version of the bot
-CMD ["python", "start.py"]
+CMD ["python", "bot_web.py"]
