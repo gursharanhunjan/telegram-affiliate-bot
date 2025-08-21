@@ -27,7 +27,7 @@ class TelegramAffiliateBot:
         
         # Initialize Telethon client for monitoring
         self.client = TelegramClient(
-            'bot_session',
+            'sessions/bot_session',
             self.config['telegram']['api_id'],
             self.config['telegram']['api_hash'],
             device_model='Railway Bot',
@@ -289,9 +289,25 @@ class TelegramAffiliateBot:
     async def start_monitoring(self):
         """Start monitoring the source channel."""
         try:
-            # Start the client
-            await self.client.start(phone=self.config['telegram']['phone_number'])
-            self.logger.info("Telegram client started successfully")
+            # Try to start with existing session first
+            try:
+                await self.client.start(phone=self.config['telegram']['phone_number'])
+                self.logger.info("Telegram client started successfully with existing session")
+            except Exception as e:
+                if "FloodWaitError" in str(e):
+                    # Extract wait time from error
+                    import re
+                    wait_time = re.search(r'(\d+) seconds', str(e))
+                    if wait_time:
+                        wait_seconds = int(wait_time.group(1))
+                        self.logger.warning(f"FloodWaitError: Waiting {wait_seconds} seconds before retry...")
+                        await asyncio.sleep(wait_seconds + 10)  # Add 10 seconds buffer
+                        await self.client.start(phone=self.config['telegram']['phone_number'])
+                        self.logger.info("Telegram client started successfully after wait")
+                    else:
+                        raise e
+                else:
+                    raise e
             
             # Register event handler for new messages
             @self.client.on(events.NewMessage(chats=self.config['channels']['source_channel_id']))
