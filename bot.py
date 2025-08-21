@@ -30,6 +30,7 @@ import telegram
 class TelegramAffiliateBot:
     def __init__(self, config_path: str = "config.json"):
         """Initialize the bot with configuration."""
+        self.logger = logging.getLogger(__name__)
         self.config = self._load_config(config_path)
         self._setup_logging()
         
@@ -54,11 +55,9 @@ class TelegramAffiliateBot:
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
                 config = json.load(f)
-                self.logger = logging.getLogger(__name__)
                 return config
         except FileNotFoundError:
             # Load from environment variables for cloud deployment
-            self.logger = logging.getLogger(__name__)
             return self._load_from_env()
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in configuration file: {e}")
@@ -80,8 +79,7 @@ class TelegramAffiliateBot:
                 "tag": os.getenv("AFFILIATE_TAG", "sharan013-21")
             },
             "logging": {
-                "level": os.getenv("LOG_LEVEL", "INFO"),
-                "file": os.getenv("LOG_FILE", "bot.log")
+                "level": os.getenv("LOG_LEVEL", "INFO")
             }
         }
         
@@ -98,15 +96,15 @@ class TelegramAffiliateBot:
         return config
 
     def _setup_logging(self):
-        """Setup logging configuration."""
-        log_config = self.config['logging']
+        """Setup logging configuration for cloud deployment."""
+        log_level = getattr(logging, self.config['logging']['level'])
         
+        # Configure logging for cloud deployment (console only)
         logging.basicConfig(
-            level=getattr(logging, log_config['level']),
+            level=log_level,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(log_config['file']),
-                logging.StreamHandler()
+                logging.StreamHandler()  # Console only for cloud deployment
             ]
         )
 
@@ -327,12 +325,36 @@ async def main():
     """Main function to run the bot."""
     bot = None
     try:
+        print("🚀 Starting Telegram Affiliate Bot...")
+        print("📋 Checking environment variables...")
+        
+        # Validate environment variables before starting
+        required_vars = [
+            "TELEGRAM_API_ID", "TELEGRAM_API_HASH", "TELEGRAM_BOT_TOKEN", 
+            "TELEGRAM_PHONE_NUMBER", "DESTINATION_CHANNEL_ID"
+        ]
+        
+        missing_vars = [var for var in required_vars if not os.getenv(var)]
+        if missing_vars:
+            print(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
+            print("📝 Please set these variables in your Railway dashboard")
+            return
+        
+        print("✅ Environment variables validated")
+        print("🤖 Initializing bot...")
+        
         bot = TelegramAffiliateBot()
+        print("✅ Bot initialized successfully")
+        print("📺 Starting monitoring...")
+        
         await bot.start_monitoring()
+        
     except KeyboardInterrupt:
-        print("\nBot interrupted by user")
+        print("\n🛑 Bot interrupted by user")
     except Exception as e:
-        print(f"Error running bot: {e}")
+        print(f"❌ Error running bot: {e}")
+        print("📋 Check Railway logs for more details")
+        raise  # Re-raise to show error in Railway logs
     finally:
         if bot:
             await bot.stop()
