@@ -1,0 +1,19 @@
+{
+    "telegram": {
+        "api_id": "YOUR_API_ID",
+        "api_hash": "YOUR_API_HASH",
+        "bot_token": "YOUR_BOT_TOKEN",
+        "phone_number": "YOUR_PHONE_NUMBER"
+    },
+    "channels": {
+        "source_channel_id": "@amazonindiaassociates",
+        "destination_channel_id": "YOUR_DESTINATION_CHANNEL_ID"
+    },
+    "affiliate": {
+        "tag": "sharan013-21"
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "bot.log"
+    }
+}
