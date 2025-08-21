@@ -1,16 +1,7 @@
 #!/usr/bin/env python3
 """
 Telegram Affiliate Link Bot - Production Version
-
-This script monitors a source Telegram channel for new messages containing Amazon links,
-replaces them with affiliate links, and forwards the modified messages to a destination channel.
-
-Features:
-- Environment variable support for cloud deployment
-- Enhanced Amazon link detection (amzaff.in, amzn.to, amzn.in)
-- Automatic message reformatting for better engagement
-- Robust error handling and logging
-- Duplicate message prevention
+Last Updated: 2025-08-21 - Railway Deployment
 """
 
 import asyncio
